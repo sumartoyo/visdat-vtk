@@ -96,6 +96,7 @@ def draw_wells(surface_scale=1.0, depth_scale=50.0):
 
     legend.UseBackgroundOn()
     legend.SetBackgroundColor([1., 1., 1.])
+    legend.BorderOn()
 
     ren.AddActor(legend)
 
@@ -108,18 +109,33 @@ def draw_wells(surface_scale=1.0, depth_scale=50.0):
     win.Render()
     iren.Start()
 
+    """
+    'gravel': [255, 255, 0],
+    'sand': [255, 255, 1],
+    'carbonate': [0, 0, 2],
+    'clay': [0, 128, 0],
+    'sandy_clay': [128, 255, 1],
+    'clayey_tuff': [196, 0, 9],
+    'sandy_tuff': [255, 183, 2],
+    'tuff': [255, 0, 2],
+    'else': [192, 192, 1],
+    """
+
 def make_colormap():
     colormap = {
-        'gravel': [255, 255, 0],
-        'sand': [255, 255, 1],
-        'carbonate': [0, 0, 2],
-        'clay': [0, 128, 0],
-        'sandy_clay': [128, 255, 1],
-        'clayey_tuff': [196, 0, 9],
-        'sandy_tuff': [255, 183, 2],
-        'tuff': [255, 0, 2],
-        'else': [192, 192, 1],
+        'clay': [196, 0, 0],
+        'clayey_tuff': [255, 0, 2],
+        'sandy_clay': [255, 183, 2],
+        'carbonate': [255, 255, 1],
+        'tuff': [255, 255, 0],
+        'sandy_tuff': [192, 192, 1],
+        'gravel': [128, 255, 1],
+        'sand': [0, 128, 0],
+        'else': [0, 0, 2],
     }
     for t in colormap:
         colormap[t] = (np.array(colormap[t], dtype=np.float64) / 255.).tolist()
     return colormap
+
+if __name__ == '__main__':
+    draw_wells()
