@@ -1,10 +1,34 @@
+import os
 import vtk
 from vtk.util.colors import tomato
-import visdat
 import numpy as np
 
+def read():
+    with open(os.path.join('data', 'Imod Jakarta', 'Boreholes_Jakarta.ipf'), 'r') as f:
+        ipf = f.read()
+    ipf = ipf.replace('\r', '')
+    sumurs = ipf.split('\n')
+
+    data = []
+    for i in range(10, len(sumurs)):
+        if sumurs[i] != '':
+            x, y, filename, surface, bottom, _, _ = sumurs[i].split(',')
+            _, nama = filename.split('\\')
+            with open(os.path.join('data', 'Imod Jakarta', 'Boreholes', nama+'.txt'), 'r') as f:
+                detail = f.read()
+            detail = detail.replace('\r', '')
+            lapisans = detail.split('\n')
+            z_old, jenis_old = None, None
+            for j in range(4, len(lapisans)):
+                if lapisans[j] != '':
+                    z, jenis = lapisans[j].split(',')
+                    if z_old != None and jenis_old != None:
+                        data.append((float(x), float(y), float(z_old), float(z), jenis_old, float(surface), float(bottom)))
+                    z_old, jenis_old = z, jenis
+    return data
+
 def draw_wells(surface_scale=1.0, depth_scale=50.0):
-    p = visdat.read()
+    p = read()
 
     ren = vtk.vtkRenderer()
     win = vtk.vtkRenderWindow()
