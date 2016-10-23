@@ -3,7 +3,7 @@ from vtk.util.colors import tomato
 import visdat
 import numpy as np
 
-def draw_wells(surface_scale=0.5, depth_scale=5.0):
+def draw_wells(surface_scale=0.5, depth_scale=50.0):
     #config.parse()
     #p = slurp.get_bores(soilmap=config.config['soil'])
     # axis scaling
@@ -18,11 +18,35 @@ def draw_wells(surface_scale=0.5, depth_scale=5.0):
     win = vtk.vtkRenderWindow()
     win.AddRenderer(ren)
     iren = vtk.vtkRenderWindowInteractor()
+
+    class MyInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
+        def __init__(self):
+            self.AddObserver('KeyPressEvent', self.keyPressEvent)
+
+        def keyPressEvent(self, obj, event):
+            azimuth, elevation = 0, 0
+
+            key = iren.GetKeySym()
+            if key == 'a':
+                azimuth = -10
+            elif key == 'd':
+                azimuth = 10
+            elif key == 'w':
+                elevation = 10
+            elif key == 's':
+                elevation = -10
+
+            ren.GetActiveCamera().Azimuth(azimuth)
+            ren.GetActiveCamera().Elevation(elevation)
+            win.Render()
+            return
+
+    iren.SetInteractorStyle(MyInteractorStyle())
     iren.SetRenderWindow(win)
 
     c = vtk.vtkCylinderSource()
     c.SetResolution(16)
-    c.SetRadius(25.0)
+    c.SetRadius(200.0)
     cm = vtk.vtkPolyDataMapper()
     cm.SetInputConnection(c.GetOutputPort())
 
@@ -42,13 +66,13 @@ def draw_wells(surface_scale=0.5, depth_scale=5.0):
         ren.AddActor(ca)
     """
 
-    colormap = {}
+    colormap = make_colormap()
     for n in xrange(len(p)):
         ca = vtk.vtkActor()
         ca.SetMapper(cm)
         x, y, z0, z1, t, _, _ = p[n]
-        if t not in colormap.iterkeys():
-            colormap[t] = np.random.ranf((1, 3)).flatten().tolist()
+        z0 *= depth_scale
+        z1 *= depth_scale
 
         ca.GetProperty().SetColor(colormap[t])
         r = z0 - z1
@@ -56,12 +80,44 @@ def draw_wells(surface_scale=0.5, depth_scale=5.0):
         ca.SetScale(1.0, r, 1.0)
         ren.AddActor(ca)
 
+    legend = vtk.vtkLegendBoxActor()
+    legend.SetNumberOfEntries(9)
+    legendBox = vtk.vtkCubeSource()
+    legendBox.Update()
+    for i, t in enumerate(colormap):
+        legend.SetEntry(i, legendBox.GetOutput(), t, colormap[t])
+    legend.GetPositionCoordinate().SetCoordinateSystemToView()
+    legend.GetPositionCoordinate().SetValue(.5, -1.0)
+
+    legend.GetPosition2Coordinate().SetCoordinateSystemToView()
+    legend.GetPosition2Coordinate().SetValue(1.0, -0.5)
+
+    legend.UseBackgroundOn()
+    legend.SetBackgroundColor([1., 1., 1.])
+
+    ren.AddActor(legend)
+
     ren.SetBackground(1.0, 1.0, 1.0)
-    win.SetSize(800, 800)
+    win.SetSize(800, 600)
 
     iren.Initialize()
     ren.ResetCamera()
-    ren.GetActiveCamera().Zoom(10.0)
+    ren.GetActiveCamera().Zoom(1.0)
     win.Render()
     iren.Start()
 
+def make_colormap():
+    colormap = {
+        'gravel': [255, 255, 0],
+        'sand': [255, 255, 1],
+        'carbonate': [0, 0, 2],
+        'clay': [0, 128, 0],
+        'sandy_clay': [128, 255, 1],
+        'clayey_tuff': [196, 0, 9],
+        'sandy_tuff': [255, 183, 2],
+        'tuff': [255, 0, 2],
+        'else': [192, 192, 1],
+    }
+    for t in colormap:
+        colormap[t] = (np.array(colormap[t], dtype=np.float64) / 255.).tolist()
+    return colormap
