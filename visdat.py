@@ -37,7 +37,7 @@ def test():
     x_min, x_max = 9999999, -9999999
     y_min, y_max = 9999999, -9999999
     z_min, z_max = 9999999, -9999999
-    for x, y, z1, z2, _ in data:
+    for x, y, z1, z2, _, _, _ in data:
         if x < x_min: x_min = x
         if x > x_max: x_max = x
         if y < y_min: y_min = y
@@ -46,19 +46,22 @@ def test():
         if z1 > z_max: z_max = z1
         if z2 < z_min: z_min = z2
         if z2 > z_max: z_max = z2
+    x_scale = 100 / (x_max - x_min)
+    y_scale = 100 / (y_max - y_min)
+    z_scale = 100 / (z_max - z_min)
 
     def normalize(x, y, z1, z2):
-        x_new = 100 * (x - x_min) / (x_max - x_min)
-        y_new = 100 * (y - y_min) / (y_max - y_min)
-        z1_new = 100 * (z1 - z_min) / (z_max - z_min)
-        z2_new = 100 * (z2 - z_min) / (z_max - z_min)
+        x_new = (x - x_min) * x_scale
+        y_new = (y - y_min) * y_scale
+        z1_new = (z1 - z_min) * z_scale
+        z2_new = (z2 - z_min) * z_scale
         return x_new, y_new, z1_new, z2_new
 
     for i in xrange(len(data)):
         ca = vtk.vtkActor()
         ca.SetMapper(cm)
         ca.GetProperty().SetColor(tomato)
-        x, y, z1, z2, jenis = data[i]
+        x, y, z1, z2, jenis, _, _ = data[i]
         x, y, z1, z2 = normalize(x, y, z1, z2)
         ca.SetPosition(x, y, z1)
         ca.SetScale(1.0, z2-z1, 1.0)
