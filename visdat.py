@@ -83,7 +83,7 @@ def read():
     data = []
     for i in range(10, len(sumurs)):
         if sumurs[i] != '':
-            x, y, filename, _, _, _, _ = sumurs[i].split(',')
+            x, y, filename, surface, bottom, _, _ = sumurs[i].split(',')
             with open('data\\Imod Jakarta\\'+filename+'.txt', 'r') as f:
                 detail = f.read()
             detail = detail.replace('\r', '')
@@ -93,7 +93,7 @@ def read():
                 if lapisans[j] != '':
                     z, jenis = lapisans[j].split(',')
                     if z_old != None and jenis_old != None:
-                        data.append((float(x), float(y), float(z_old), float(z), jenis_old))
+                        data.append((float(x), float(y), float(z_old), float(z), jenis_old, float(surface), float(bottom)))
                     z_old, jenis_old = z, jenis
     return data
 
