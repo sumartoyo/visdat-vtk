@@ -32,6 +32,7 @@ def draw_wells(surface_scale=1.0, depth_scale=50.0):
 
     ren = vtk.vtkRenderer()
     win = vtk.vtkRenderWindow()
+    win.SetWindowName("Sumur DKI Jakarta")
     win.AddRenderer(ren)
     iren = vtk.vtkRenderWindowInteractor()
 
@@ -61,7 +62,7 @@ def draw_wells(surface_scale=1.0, depth_scale=50.0):
     iren.SetRenderWindow(win)
 
     c = vtk.vtkCylinderSource()
-    c.SetResolution(16)
+    c.SetResolution(32)
     c.SetRadius(200.0)
     cm = vtk.vtkPolyDataMapper()
     cm.SetInputConnection(c.GetOutputPort())
@@ -96,7 +97,7 @@ def draw_wells(surface_scale=1.0, depth_scale=50.0):
 
     legend.UseBackgroundOn()
     legend.SetBackgroundColor([1., 1., 1.])
-    legend.BorderOn()
+    legend.BoxOn()
 
     ren.AddActor(legend)
 
@@ -105,21 +106,9 @@ def draw_wells(surface_scale=1.0, depth_scale=50.0):
 
     iren.Initialize()
     ren.ResetCamera()
-    ren.GetActiveCamera().Zoom(1.0)
+    ren.GetActiveCamera().Zoom(1.5)
     win.Render()
     iren.Start()
-
-    """
-    'gravel': [255, 255, 0],
-    'sand': [255, 255, 1],
-    'carbonate': [0, 0, 2],
-    'clay': [0, 128, 0],
-    'sandy_clay': [128, 255, 1],
-    'clayey_tuff': [196, 0, 9],
-    'sandy_tuff': [255, 183, 2],
-    'tuff': [255, 0, 2],
-    'else': [192, 192, 1],
-    """
 
 def make_colormap():
     colormap = {
@@ -129,9 +118,9 @@ def make_colormap():
         'carbonate': [255, 255, 1],
         'tuff': [255, 255, 0],
         'sandy_tuff': [192, 192, 1],
-        'gravel': [128, 255, 1],
-        'sand': [0, 128, 0],
-        'else': [0, 0, 2],
+        'gravel': [0, 128, 0],
+        'sand': [128, 255, 1],
+        'else': [128, 128, 128],
     }
     for t in colormap:
         colormap[t] = (np.array(colormap[t], dtype=np.float64) / 255.).tolist()
