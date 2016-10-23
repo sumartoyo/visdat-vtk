@@ -87,7 +87,8 @@ def read():
     for i in range(10, len(sumurs)):
         if sumurs[i] != '':
             x, y, filename, surface, bottom, _, _ = sumurs[i].split(',')
-            with open('data\\Imod Jakarta\\'+filename+'.txt', 'r') as f:
+            _, nama = filename.split('\\')
+            with open(os.path.join('data', 'Imod Jakarta', 'Boreholes', nama+'.txt'), 'r') as f:
                 detail = f.read()
             detail = detail.replace('\r', '')
             lapisans = detail.split('\n')
